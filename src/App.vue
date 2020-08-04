@@ -8,7 +8,7 @@
             </div>
 
             <vs-navbar-item index="0">
-                <router-link to="/">کارت ها</router-link>
+                <router-link to="/home">کارت ها</router-link>
                 |
             </vs-navbar-item>
             <vs-navbar-item index="1">

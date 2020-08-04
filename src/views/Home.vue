@@ -10,6 +10,7 @@
             </vs-button>
             <vs-divider color="warning" icon="star"></vs-divider>
 
+            <!-- Add New Card -->
             <vs-col v-if="addMode === true && editMode !== true " type="flex" vs-justify="center" vs-align="center"
                     vs-w="12"
                     style="padding: 1em 2em">
@@ -33,10 +34,20 @@
                                       placeholder="شماره کارت"
                                       v-model="newCard.number"/>
                         </div>
+                        <div style="font-size: 32px; padding-bottom: 1rem;">
+                            <vs-input style="width: 100%" size="large" class="inputx" label="CVV2"
+                                      placeholder="CVV2"
+                                      v-model="newCard.cvv"/>
+                        </div>
                         <div style="font-size: 32px;">
                             <vs-input style="width: 100%" class="inputx" size="large" label="تاریخ انقضا"
                                       placeholder="تاریخ انقضا"
                                       v-model="newCard.date"/>
+                        </div>
+                        <div style="font-size: 32px;">
+                            <label for="logo">لوگو بانک</label>
+                            <br>
+                            <input type="file" @change="logoSelected" id="logo" required>
                         </div>
                     </div>
                     <div slot="footer">
@@ -48,6 +59,7 @@
                 </vs-card>
             </vs-col>
 
+            <!-- Edit Card -->
             <vs-col v-if="editMode === true && addMode !== true" type="flex" vs-justify="center" vs-align="center"
                     vs-w="12"
                     style="padding: 1em 2em">
@@ -71,10 +83,20 @@
                                       placeholder="شماره کارت"
                                       v-model="editCard.number"/>
                         </div>
+                        <div style="font-size: 32px; padding-bottom: 1rem;">
+                            <vs-input style="width: 100%" size="large" class="inputx" label="CVV2"
+                                      placeholder="CVV2"
+                                      v-model="editCard.cvv"/>
+                        </div>
                         <div style="font-size: 32px;">
                             <vs-input style="width: 100%" class="inputx" size="large" label="تاریخ انقضا"
                                       placeholder="تاریخ انقضا"
                                       v-model="editCard.date"/>
+                        </div>
+                        <div style="font-size: 32px;">
+                            <label for="logo">لوگو بانک</label>
+                            <br>
+                            <input type="file" @change="logoSelected" id="logo" required>
                         </div>
                     </div>
                     <div slot="footer">
@@ -98,6 +120,8 @@
                                     </h3>
                                 </div>
                                 <div>
+                                    <img :src="card.logo" alt="لوگو بانک">
+                                    <br>
                                     <h1 style="text-align: center; font-size: 32px; padding: 2rem 0;">{{
                                         formatCardNumber(card.number)
                                         }}</h1>
@@ -134,16 +158,25 @@
                             </h3>
                         </div>
                         <div>
-                            <h1 style="text-align: center; font-size: 32px; padding: 2rem 0;">{{
+                            <div style="display: flex; justify-content: center;padding: 1rem 0;">
+                                <img :src="card.logo"
+                                     style="width: 128px; height: auto; box-shadow: 0 3px 6px #00000030"
+                                     alt="لوگو بانک">
+                            </div>
+                            <br>
+                            <h1 style="text-align: center; font-size: 32px; padding-bottom: 1rem">{{
                                 formatCardNumber(card.number)
                                 }}</h1>
                             <br>
                             <vs-row>
-                                <vs-col vs-type="flex" vs-justify="right" vs-align="center" vs-w="6">
-                                    <span>{{ card.bank }}</span>
+                                <vs-col vs-type="flex" vs-justify="right" vs-align="center" vs-w="4">
+                                    <span> نام بانک : {{ card.bank }}</span>
                                 </vs-col>
-                                <vs-col vs-type="flex" vs-justify="flex-end" vs-align="center" vs-w="6">
+                                <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-w="4" dir="rtl">
                                     <span>تاریخ انقضا : {{ card.date }}</span>
+                                </vs-col>
+                                <vs-col vs-type="flex" vs-justify="flex-end" vs-align="center" vs-w="4">
+                                    <span>{{ card.cvv }} : CVV2</span>
                                 </vs-col>
                             </vs-row>
                         </div>
@@ -158,6 +191,7 @@
                     </vs-card>
                 </vs-col>
             </vs-row>
+
             <div v-if="cards.length === 0 && !addMode" style="width: 100%; padding: 1rem 3rem">
                 <vs-alert
                         color="primary"
@@ -171,6 +205,7 @@
 
 <script>
     // @ is an alias to /src
+    import fs from "fs";
     import {Swiper, SwiperSlide} from 'vue-awesome-swiper'
     import 'swiper/swiper-bundle.css'
 
@@ -194,6 +229,8 @@
                 number: null,
                 date: null,
                 bank: null,
+                cvv: null,
+                logo: null,
             },
             editCardIndex: null,
             editCard: {
@@ -201,6 +238,8 @@
                 number: null,
                 date: null,
                 bank: null,
+                cvv: null,
+                logo: null,
             },
         }),
         watch: {
@@ -211,6 +250,22 @@
             }
         },
         methods: {
+            logoSelected() {
+                let vm = this;
+                var file = document
+                    .querySelector('input[type=file]')
+                    .files[0];
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    vm.newCard.logo = e.target.result;
+                    vm.editCard.logo = e.target.result
+                };
+                reader.onerror = function (error) {
+                    alert(error);
+                };
+                reader.readAsDataURL(file);
+            },
+
             getBank() {
                 const IRAN_BANK_INFO = [
                     {
@@ -401,6 +456,8 @@
                         number: null,
                         date: null,
                         bank: null,
+                        cvv: null,
+                        logo: null,
                     };
                     this.addMode = false;
                 }
@@ -426,6 +483,8 @@
                     number: null,
                     date: null,
                     bank: null,
+                    cvv: null,
+                    logo: null,
                 };
                 this.editCardIndex = null;
             }
@@ -450,5 +509,10 @@
 
     .con-vs-alert, .con-vs-alert-danger {
         height: auto;
+    }
+
+    label {
+        font-size: 12pt;
+        font-weight: 200;
     }
 </style>
